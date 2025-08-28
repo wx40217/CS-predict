@@ -1,0 +1,85 @@
+# 选图预测模型配置
+model:
+  name: "MapPredictionTransformer"
+  type: "transformer"
+  
+  # 模型架构参数
+  architecture:
+    input_dim: 128          # 输入特征维度
+    hidden_dim: 512         # 隐藏层维度
+    num_layers: 6           # Transformer层数
+    num_heads: 8            # 注意力头数
+    dropout: 0.1            # Dropout率
+    max_seq_length: 10      # 最大序列长度（10名队员）
+    
+  # 地图相关配置
+  maps:
+    - "de_dust2"
+    - "de_mirage" 
+    - "de_inferno"
+    - "de_overpass"
+    - "de_nuke"
+    - "de_vertigo"
+    - "de_ancient"
+    num_maps: 7
+    
+  # 特征工程
+  features:
+    player_stats: ["rating", "impact", "dpr", "adr", "kast", "kpr", "headshots", "age"]
+    team_stats: ["team_rating", "team_chemistry", "recent_form"]
+    map_stats: ["map_winrate", "map_played", "map_performance"]
+    
+training:
+  # 训练参数
+  batch_size: 64            # 批处理大小（适配48G内存）
+  learning_rate: 0.0001     # 学习率
+  weight_decay: 0.01        # 权重衰减
+  num_epochs: 100           # 训练轮数
+  warmup_steps: 1000        # 预热步数
+  
+  # 优化器配置
+  optimizer:
+    type: "AdamW"
+    betas: [0.9, 0.999]
+    eps: 1e-8
+    
+  # 学习率调度器
+  scheduler:
+    type: "CosineAnnealingWarmRestarts"
+    T_0: 10
+    T_mult: 2
+    
+  # 早停配置
+  early_stopping:
+    patience: 15
+    min_delta: 0.001
+        
+  # 数据分割
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+  
+  # 数据增强
+  augmentation:
+    enabled: true
+    noise_factor: 0.05
+    dropout_factor: 0.1
+    
+# 硬件配置（针对您的配置优化）
+hardware:
+  device: "cuda"            # 使用GPU
+  num_workers: 8            # 数据加载进程数（适配9800X3D）
+  pin_memory: true          # 内存固定
+  mixed_precision: true     # 混合精度训练
+  
+# 模型保存
+checkpoint:
+  save_dir: "./checkpoints"
+  save_freq: 5              # 每5个epoch保存一次
+  keep_last: 3              # 保留最后3个检查点
+  
+# 日志配置
+logging:
+  log_dir: "./logs"
+  tensorboard: true
+  log_freq: 100             # 每100步记录一次

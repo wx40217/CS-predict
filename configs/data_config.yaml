@@ -1,0 +1,136 @@
+# 数据处理配置
+data:
+  # HLTV API配置
+  hltv_api:
+    base_url: "https://hltv-api.vercel.app"
+    rate_limit: 100         # 每分钟请求限制
+    timeout: 30             # 请求超时时间（秒）
+    retry_attempts: 3       # 重试次数
+    
+  # 数据收集配置
+  collection:
+    # 时间范围
+    start_date: "2020-01-01"
+    end_date: "2024-12-31"
+    
+    # 数据源
+    sources:
+      - "matches"            # 比赛数据
+      - "players"            # 选手数据
+      - "teams"              # 队伍数据
+      - "results"            # 比赛结果
+      
+    # 过滤条件
+    filters:
+      min_stars: 1           # 最低星级比赛
+      min_maps: 3            # 最少地图数
+      top_teams_only: false  # 是否只收集顶级队伍
+      
+  # 数据预处理配置
+  preprocessing:
+    # 特征工程
+    features:
+      # 选手特征
+      player_features:
+        - "rating"
+        - "impact"
+        - "dpr"
+        - "adr" 
+        - "kast"
+        - "kpr"
+        - "headshots"
+        - "age"
+        - "experience_years"
+        - "maps_played"
+        - "kd_ratio"
+        - "clutch_wins"
+        
+      # 团队特征
+      team_features:
+        - "team_rating"
+        - "team_chemistry"
+        - "recent_form"
+        - "team_age_avg"
+        - "team_experience_avg"
+        - "team_consistency"
+        
+      # 地图特征
+      map_features:
+        - "map_winrate"
+        - "map_played"
+        - "map_performance"
+        - "map_comfort"
+        
+    # 数据清洗
+    cleaning:
+      remove_duplicates: true
+      fill_missing: true
+      outlier_removal: true
+      min_data_quality: 0.8
+      
+    # 特征标准化
+    normalization:
+      method: "standard"     # standard, minmax, robust
+      apply_to: ["rating", "impact", "dpr", "adr", "kast", "kpr"]
+      
+    # 年龄特征处理
+    age_processing:
+      # 年龄分组
+      age_bins: [16, 20, 25, 30, 35, 40]
+      age_labels: ["teen", "young", "prime", "veteran", "legend"]
+      
+      # 年龄权重计算
+      age_weights:
+        youth_factor: 1.2    # 年轻选手权重
+        prime_factor: 1.0    # 黄金年龄权重
+        veteran_factor: 0.9  # 老将权重
+        legend_factor: 0.8   # 传奇选手权重
+        
+  # 数据存储配置
+  storage:
+    raw_data_dir: "./raw_data"
+    processed_data_dir: "./processed_data"
+    cache_dir: "./cache"
+    
+    # 数据格式
+    format: "parquet"        # parquet, csv, hdf5
+    
+    # 压缩
+    compression: "gzip"
+    
+    # 分块大小
+    chunk_size: 10000
+    
+  # 数据验证配置
+  validation:
+    # 数据质量检查
+    quality_checks:
+      - "missing_values"
+      - "outliers"
+      - "data_types"
+      - "value_ranges"
+      
+    # 数据完整性检查
+    integrity_checks:
+      - "foreign_keys"
+      - "referential_integrity"
+      - "temporal_consistency"
+      
+    # 阈值设置
+    thresholds:
+      min_completeness: 0.9
+      max_outlier_ratio: 0.05
+      min_data_points: 1000
+      
+  # 缓存配置
+  cache:
+    enabled: true
+    max_size: "10GB"
+    ttl: 86400              # 24小时
+    
+  # 并行处理配置
+  parallel:
+    enabled: true
+    num_processes: 8        # 适配9800X3D
+    chunk_size: 1000
+    memory_limit: "4GB"     # 每个进程内存限制

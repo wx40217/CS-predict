@@ -1,0 +1,124 @@
+# 胜率预测模型配置
+model:
+  name: "WinRatePredictionNN"
+  type: "deep_neural_network"
+  
+  # 模型架构参数
+  architecture:
+    input_dim: 256          # 输入特征维度
+    hidden_dims: [512, 256, 128, 64]  # 隐藏层维度
+    dropout: 0.2            # Dropout率
+    activation: "relu"       # 激活函数
+    batch_norm: true         # 批归一化
+    
+  # 特征工程
+  features:
+    # 个人特征
+    player_features:
+      - "rating"
+      - "impact" 
+      - "dpr"
+      - "adr"
+      - "kast"
+      - "kpr"
+      - "headshots"
+      - "age"
+      - "experience_years"
+      - "maps_played"
+      
+    # 团队特征
+    team_features:
+      - "team_rating"
+      - "team_chemistry"
+      - "recent_form"
+      - "team_age_avg"
+      - "team_experience_avg"
+      
+    # 对战特征
+    matchup_features:
+      - "head_to_head_record"
+      - "recent_matchups"
+      - "map_advantage"
+      - "style_compatibility"
+      
+    # 年龄相关特征（重点考虑）
+    age_features:
+      - "age_advantage"
+      - "experience_gap"
+      - "youth_factor"
+      - "veteran_factor"
+      
+training:
+  # 训练参数
+  batch_size: 128           # 批处理大小（适配48G内存）
+  learning_rate: 0.001      # 学习率
+  weight_decay: 0.01        # 权重衰减
+  num_epochs: 150           # 训练轮数
+  
+  # 优化器配置
+  optimizer:
+    type: "AdamW"
+    betas: [0.9, 0.999]
+    eps: 1e-8
+    
+  # 学习率调度器
+  scheduler:
+    type: "ReduceLROnPlateau"
+    mode: "min"
+    factor: 0.5
+    patience: 10
+    min_lr: 1e-6
+    
+  # 早停配置
+  early_stopping:
+    patience: 20
+    min_delta: 0.001
+        
+  # 数据分割
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+  
+  # 数据增强
+  augmentation:
+    enabled: true
+    noise_factor: 0.03
+    dropout_factor: 0.15
+    
+  # 损失函数
+  loss:
+    type: "BCELoss"         # 二元交叉熵损失
+    class_weights: [1.0, 1.0]  # 类别权重
+    
+# 硬件配置（针对您的配置优化）
+hardware:
+  device: "cuda"            # 使用GPU
+  num_workers: 8            # 数据加载进程数（适配9800X3D）
+  pin_memory: true          # 内存固定
+  mixed_precision: true     # 混合精度训练
+  
+# 模型保存
+checkpoint:
+  save_dir: "./checkpoints"
+  save_freq: 10             # 每10个epoch保存一次
+  keep_last: 5              # 保留最后5个检查点
+  
+# 日志配置
+logging:
+  log_dir: "./logs"
+  tensorboard: true
+  log_freq: 50              # 每50步记录一次
+  
+# 年龄因素权重配置
+age_weights:
+  # 年龄对胜率的影响权重
+  youth_advantage: 0.15     # 年轻选手优势权重
+  experience_advantage: 0.20 # 经验优势权重
+  age_penalty: 0.10         # 年龄惩罚权重
+  
+  # 年龄分组
+  age_groups:
+    young: [16, 22]         # 年轻选手
+    prime: [23, 27]         # 黄金年龄
+    veteran: [28, 32]       # 老将
+    legend: [33, 40]        # 传奇选手
