@@ -1,0 +1,37 @@
+seed: 42
+
+paths:
+  raw_dir: data/raw
+  processed_dir: data/processed
+  checkpoints_dir: checkpoints
+
+train:
+  batch_size: 256
+  num_workers: 12
+  max_epochs: 25
+  lr: 3e-4
+  weight_decay: 1e-4
+  precision: amp  # amp or fp32
+  grad_clip_norm: 1.0
+  val_every_n_steps: 200
+  log_every_n_steps: 50
+  save_top_k: 1
+
+model:
+  player_feature_dim: 32      # derived after preprocessing; placeholder upper bound
+  player_encoder_dim: 128
+  team_encoder_dim: 256
+  dropout: 0.1
+  maps: [ancient, anubis, inferno, mirage, nuke, overpass, vertigo]
+
+features:
+  # Baseline player stat keys to extract from API/player cache; missing -> 0
+  player_numeric_keys: [rating, kd, impact, dpr, kast]
+  # Age handling
+  include_age: true
+  include_age_squared: true
+  age_clip: [15, 40]
+
+preprocess:
+  min_date: "2022-01-01"
+  max_matches: 10000
