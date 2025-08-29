@@ -1,0 +1,21 @@
+[
+  {
+    "name": "HLTV官网",
+    "url": "https://www.hltv.org",
+    "status": "error",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "name": "HLTV API Vercel",
+    "url": "https://hltv-api.vercel.app/api/rankings",
+    "status": "error",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "name": "Liquipedia",
+    "url": "https://liquipedia.net/counterstrike/Main_Page",
+    "status": "available",
+    "status_code": 200,
+    "content_length": 792234
+  }
+]
