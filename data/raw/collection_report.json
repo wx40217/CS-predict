@@ -1,0 +1,24 @@
+{
+  "collection_time": "2024-01-15T10:00:00",
+  "data_source": "mock_generator",
+  "teams_collected": 6,
+  "players_collected": 30,
+  "matches_collected": 200,
+  "team_ids": [
+    4608,
+    5995,
+    6665,
+    7020,
+    6137,
+    4494
+  ],
+  "maps_in_matches": {
+    "mirage": 28,
+    "inferno": 28,
+    "dust2": 28,
+    "nuke": 28,
+    "overpass": 28,
+    "vertigo": 28,
+    "ancient": 28
+  }
+}
