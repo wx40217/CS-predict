@@ -5,10 +5,10 @@
 import os
 from typing import Dict, List
 
-# API配置
-HLTV_API_BASE_URL = "https://hltv-api.vercel.app/api"
-REQUEST_DELAY = 1.0  # 请求间隔(秒)，避免被API限制
+# API配置 - 使用hltv-async-api
+REQUEST_DELAY = 1.5  # 请求间隔(秒)，避免被API限制
 MAX_RETRIES = 3
+MAX_CONCURRENT_REQUESTS = 5  # 最大并发请求数
 
 # 数据配置
 DATA_DIR = "data"

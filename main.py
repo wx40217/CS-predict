@@ -7,12 +7,13 @@ import argparse
 import sys
 import os
 import logging
+import asyncio
 from typing import List, Dict
 
 # 添加项目路径
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from data_collector import HLTVDataCollector
+from data_collector_new import HLTVAsyncDataCollector
 from data_preprocessor import DataPreprocessor
 from trainer import CS2ModelTrainer
 from predictor import CS2MatchPredictor_Inference, PlayerInfo, TeamInfo, create_sample_teams
@@ -28,30 +29,34 @@ def setup_logging():
         ]
     )
 
-def collect_data(team_ids: List[int] = None, player_ids: List[int] = None):
-    """收集数据"""
+async def collect_data(team_ids: List[int] = None, player_ids: List[int] = None):
+    """收集数据 - 异步版本"""
     print("🔄 开始收集HLTV数据...")
     
-    collector = HLTVDataCollector()
+    collector = HLTVAsyncDataCollector()
     
-    # 默认队伍ID（示例）
-    if team_ids is None:
-        team_ids = [4608, 5995, 6665, 7020, 6137]  # G2, FaZe, NAVI, Astralis, Liquid
-    
-    # 收集队伍数据
-    print(f"收集 {len(team_ids)} 支队伍的数据...")
-    teams_df = collector.collect_team_data(team_ids)
-    
-    # 如果提供了选手ID，收集选手数据
-    if player_ids:
-        print(f"收集 {len(player_ids)} 名选手的数据...")
-        players_df = collector.collect_player_data(player_ids)
+    if team_ids is None and player_ids is None:
+        # 使用全量收集
+        print("使用全量数据收集模式...")
+        await collector.collect_all_data(team_limit=20, match_limit=400)
     else:
-        print("未提供选手ID，跳过选手数据收集")
-        players_df = None
+        # 自定义收集
+        if team_ids:
+            print(f"收集指定的 {len(team_ids)} 支队伍数据...")
+            teams_df = await collector.collect_teams_data(team_ids, use_ranking=False)
+        else:
+            print("收集排名前20的队伍数据...")
+            teams_df = await collector.collect_teams_data(use_ranking=True)
+        
+        # 收集选手数据
+        print("收集选手数据...")
+        if team_ids:
+            players_df = await collector.collect_players_data(team_ids[:10])
+        else:
+            players_df = await collector.collect_players_data()
     
     print("✅ 数据收集完成")
-    return teams_df, players_df
+    return True
 
 def preprocess_data():
     """预处理数据"""
@@ -190,7 +195,8 @@ def main():
     print("=" * 50)
     
     if args.mode == 'collect':
-        collect_data(args.team_ids, args.player_ids)
+        # 数据收集需要异步运行
+        asyncio.run(collect_data(args.team_ids, args.player_ids))
         
     elif args.mode == 'preprocess':
         preprocess_data()
